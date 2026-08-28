@@ -7,7 +7,7 @@ pipeline {
     environment {
           COURSE = "jenkins"
     }
-    }
+    
 
     stages {
         stage('build') {
@@ -34,7 +34,7 @@ pipeline {
     post {
         always { 
                 echo 'I will always say Hello again!'
-                cleanWs() 
+                // cleanWs() 
         }
         success {
                 echo 'Run if pipeline success'
