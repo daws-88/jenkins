@@ -10,7 +10,7 @@ pipeline {
     } 
     options {
         timeout(time: 10, unit: 'SECONDS')
-
+    }
     stages { 
         stage('build') { 
             steps { 
@@ -55,5 +55,4 @@ pipeline {
             echo "pipeline is aborted"
         }
     } 
-}
 }
