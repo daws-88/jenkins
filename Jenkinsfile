@@ -28,6 +28,7 @@ pipeline {
                     sh """
                         echo "hello depolying"
                         echo $COURSE
+                        env
                     """
                 } 
             } 
