@@ -1,25 +1,48 @@
 pipeline {
-    agent  {
+    agent {
         node {
             label 'AGENT-1'
+        }
     }
-}
-        stages {
-            stage('build') {
-                steps {
-                    echo "Hello building"
-                }
+    environment {
+          COURSE = "jenkins"
+    }
+    }
+
+    stages {
+        stage('build') {
+            steps {
+                echo "Hello building"
             }
-             stage('test') {
-                steps {
-                    echo "Hello testing"
-                }
+        }
+        stage('test') {
+            steps {
+                echo "Hello testing"
             }
-            
-            stage('depoly') {
-                steps {
-                    echo "Hello deploying"
+         } 
+        stage('depoly') {
+            steps {
+                script {
+                    sh """
+                        echo "hello depolying" 
+                        echo $COURSE
+                       """
                 }
             }
         }
-}
+     }
+    post {
+        always { 
+                echo 'I will always say Hello again!'
+                cleanWs() 
+        }
+        success {
+                echo 'Run if pipeline success'
+        }
+        failure {
+                echo 'Run if pipeline failire'
+        }
+        // aborted {
+        //         echo 'Pipeline is aborted'
+        // }
+    }
