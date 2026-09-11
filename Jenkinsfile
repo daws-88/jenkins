@@ -43,7 +43,7 @@ pipeline {
             }
         }
         stage('Depoly') {
-            input {
+            input {   
                 message "Should we continue?"
                 ok "Yes, we should."
                 submitter "alice,bob"
@@ -53,7 +53,7 @@ pipeline {
             }
             when {
                 expression {
-                     "$params.DEPLOY == true" // condition
+                     "$params.DEPLOY == true"  
                            }
                 }
 
@@ -63,7 +63,7 @@ pipeline {
         }
     }
     post {
-        always { 
+        always {  // sections
             echo 'I will always say Hello'
             cleanWs()
         }
