@@ -5,76 +5,73 @@ pipeline {
         }
     }
     environment {
-        COURSE ="jenkins"
+        COURSE = "CICD"
     }
     options {
-        timeout(time: 10, unit: 'MINUTES') 
-        disableConcurrentBuilds()
+         timeout(time: 10, unit: 'MINUTES') 
+         disableConcurrentBuilds()
     }
-        parameters {
-            string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-            text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
-            booleanParam(name: 'DEPOLY', defaultValue: true, description: 'Toggle this value')
-            choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
-            password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
-    }
+    parameters {
+        string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
+        text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Toggle this value')
+        choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
+        password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
+    }  
     stages {
-        stage('Build') {
+        stage('build') {
             steps {
-                   script {
+                echo "Hello Building"
+            }
+        }
+        stage('test') {
+            steps {
+                echo "Hello Testing"
+            }
+        stage('deploy') {
+            steps {
+                script {
                     sh """
-                     echo "Hello Test"
-                     echo $COURSE
-                     sleep 10
-                     env
-
-                     echo "Hello ${params.PERSON}"
-                     echo "Biography: ${params.BIOGRAPHY}"
-                     echo "Toggle: ${params.DEPOLY}"
-                     echo "Choice: ${params.CHOICE}"
-                     echo "Password: ${params.PASSWORD}"
+                        echo "Hello Depolying"
+                        echo $COURSE
+                        env
+                        sleep 10
+                        echo "Hello ${params.PERSON}"
+                        echo "Biography: ${params.BIOGRAPHY}"
+                        echo "Toggle: ${params.TOGGLE}"
+                        echo "Choice: ${params.CHOICE}"
+                        echo "Password: ${params.PASSWORD}"
                        """
+                }
+                when {
+                    expression {
+                       "${params.DEPLOY} == true" 
+                    }
+                }
+                input {
+                message "Should we continue?"
+                ok "Yes, we should."
+                submitter "alice,bob"
+                parameters {
+                    string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
                 }
             }
         }
-        stage('Test') {
-            steps {
-                echo "Hello Test"
-            }
-        }
-        stage('Depoly') {
-            // input {
-            //     message "Should we continue?"
-            //     ok "Yes, we should."
-            //     submitter "alice,bob"
-            //     parameters {
-            //         string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
-            //     }
-            // }
-            // when {
-            //     expression {
-            //          "$params.DEPLOY == true"
-            //                }
-            //     }
-
-            steps {
-                echo "Hello Depolying"         
-            }
-        }
+    }
     }
     post {
-        always { 
-            echo 'I will always say Hello'
+        always {
+            echo  'I will always say Hello again!'
             cleanWs()
         }
         success {
-            echo 'Run if pipeline success' 
+            echo 'Pipeline is Success'
         }
         failure {
-            echo 'Run if pipeline failure' 
+            echo 'Pipeline is Failure'
         }
         aborted {
-            echo 'pipeline is aborted'
+            echo 'Pipeline is aborted'
         }
     }
 }
