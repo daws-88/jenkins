@@ -44,6 +44,11 @@ pipeline {
         }
 
         stage('Deploy') {
+            when {
+                expression {
+                    params.DEPOLY == true
+                }
+            }
             input {
                 message "Should we continue?"
                 ok "Yes, we should."
@@ -52,13 +57,6 @@ pipeline {
                     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
                 }
             }
-
-            when {
-                expression {
-                    params.DEPOLY == true
-                }
-            }
-
             steps {
                 echo "Hello Deploying"
             }
@@ -75,7 +73,7 @@ pipeline {
             echo 'Pipeline executed successfully'
 
             withCredentials([
-                string(credentialsId: 'slack-webhook', variable: 'SLACK_WEBHOOK')
+                string(credentialsId: 'slack-auth', variable: 'SLACK_WEBHOOK')
             ]) {
                 sh '''
                     curl -sS -X POST \
@@ -90,7 +88,7 @@ pipeline {
             echo 'Pipeline failed'
 
             withCredentials([
-                string(credentialsId: 'slack-webhook', variable: 'SLACK_WEBHOOK')
+                string(credentialsId: 'slack-auth', variable: 'SLACK_WEBHOOK')
             ]) {
                 sh '''
                     curl -sS -X POST \
