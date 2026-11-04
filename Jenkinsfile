@@ -1,9 +1,5 @@
 pipeline {
-    agent {
-        node {
-            label 'AGENT-1'
-        }
-    }
+    agent any
     environment {
         COURSE ="jenkins"
     }
@@ -68,7 +64,16 @@ pipeline {
             cleanWs()
         }
         success {
-            echo 'Run if pipeline success' 
+            slackSend(
+                channel: '#jenkins-alerts',
+                color: 'good',
+                message: """
+                *BUILD SUCCESSFUL* :white_check_mark:
+                Job: ${env.JOB_NAME}
+                Build: #${env.BUILD_NUMBER}
+                URL: <${env.BUILD_URL}|Click Here>
+                """
+            )
         }
         failure {
             echo 'Run if pipeline failure' 
