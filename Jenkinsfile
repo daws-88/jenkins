@@ -64,22 +64,30 @@ pipeline {
             cleanWs()
         }
         success {
-            slackSend(
-                channel: '#jenkins-alerts',
-                color: 'good',
-                message: """
-                *BUILD SUCCESSFUL* :white_check_mark:
-                Job: ${env.JOB_NAME}
-                Build: #${env.BUILD_NUMBER}
-                URL: <${env.BUILD_URL}|Click Here>
-                """
-            )
+            echo 'run '
         }
         failure {
             echo 'Run if pipeline failure' 
         }
         aborted {
             echo 'pipeline is aborted'
+        }
+        stage('Slack Notification') {
+            steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'slack-webhook',
+                        variable: 'slack-auth'
+                    )
+                ]) {
+                    sh '''
+                        curl -X POST \
+                        -H 'Content-type: application/json' \
+                        --data '{"text":"Jenkins pipeline executed successfully!"}' \
+                         "$SLACK_WEBHOOK"
+                '''
+                }
+            }
         }
     }
 }
