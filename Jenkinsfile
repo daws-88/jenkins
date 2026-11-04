@@ -66,8 +66,8 @@ pipeline {
             script {
                 sh """
                     echo "Hello Test"
-                    echo \$COURSE
-                    exit 1
+                    echo "venkat"
+                    
                 """
               }
             }
