@@ -1,12 +1,16 @@
+
 pipeline {
     agent any
+
     environment {
-        COURSE ="jenkins"
+        COURSE = "jenkins"
     }
+
     options {
-        timeout(time: 10, unit: 'MINUTES') 
+        timeout(time: 10, unit: 'MINUTES')
         disableConcurrentBuilds()
     }
+
     parameters {
         string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
@@ -14,32 +18,33 @@ pipeline {
         choice(name: 'CHOICE', choices: ['One', 'Two', 'Three'], description: 'Pick something')
         password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
+
     stages {
         stage('Build') {
             steps {
                 script {
                     sh """
-                      echo "Hello Test"
-                      echo $COURSE
-                      sleep 10
-                      env 
-
-                     echo "Hello ${params.PERSON}"
-                     echo "Biography: ${params.BIOGRAPHY}"
-                     echo "Toggle: ${params.DEPOLY}"
-                     echo "Choice: ${params.CHOICE}"
-                     echo "Password: ${params.PASSWORD}"
-                       """
+                        echo "Hello Test"
+                        echo \$COURSE
+                        sleep 10
+                        env
+                        echo "Hello ${params.PERSON}"
+                        echo "Biography: ${params.BIOGRAPHY}"
+                        echo "Toggle: ${params.DEPOLY}"
+                        echo "Choice: ${params.CHOICE}"
+                    """
                 }
             }
         }
+
         stage('Test') {
             steps {
                 echo "Hello Test"
             }
         }
-        stage('Depoly') {
-            input {   
+
+        stage('Deploy') {
+            input {
                 message "Should we continue?"
                 ok "Yes, we should."
                 submitter "alice,bob"
@@ -47,47 +52,57 @@ pipeline {
                     string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
                 }
             }
+
             when {
                 expression {
-                     "$params.DEPLOY == true"  
-                           }
+                    params.DEPOLY == true
                 }
+            }
 
             steps {
-                echo "Hello Depolying"         
+                echo "Hello Deploying"
             }
         }
     }
+
     post {
-        always {  
+        always {
             echo 'I will always say Hello'
             cleanWs()
         }
+
         success {
-            echo 'run '
-        }
-        failure {
-            echo 'Run if pipeline failure' 
-        }
-        aborted {
-            echo 'pipeline is aborted'
-        }
-        stage('Slack Notification') {
-            steps {
-                withCredentials([
-                    string(
-                        credentialsId: 'slack-webhook',
-                        variable: 'slack-auth'
-                    )
-                ]) {
-                    sh '''
-                        curl -X POST \
-                        -H 'Content-type: application/json' \
-                        --data '{"text":"Jenkins pipeline executed successfully!"}' \
-                         "$SLACK_WEBHOOK"
+            echo 'Pipeline executed successfully'
+
+            withCredentials([
+                string(credentialsId: 'slack-webhook', variable: 'SLACK_WEBHOOK')
+            ]) {
+                sh '''
+                    curl -sS -X POST \
+                    -H 'Content-type: application/json' \
+                    --data '{"text":"SUCCESS: Jenkins pipeline executed successfully!"}' \
+                    "$SLACK_WEBHOOK"
                 '''
-                }
             }
+        }
+
+        failure {
+            echo 'Pipeline failed'
+
+            withCredentials([
+                string(credentialsId: 'slack-webhook', variable: 'SLACK_WEBHOOK')
+            ]) {
+                sh '''
+                    curl -sS -X POST \
+                    -H 'Content-type: application/json' \
+                    --data '{"text":"FAILURE: Jenkins pipeline failed!"}' \
+                    "$SLACK_WEBHOOK"
+                '''
+            }
+        }
+
+        aborted {
+            echo 'Pipeline is aborted'
         }
     }
 }
