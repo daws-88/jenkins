@@ -61,6 +61,17 @@ pipeline {
                 echo "Hello Deploying"
             }
         }
+    stage('exit') {
+        steps {
+            script {
+                sh """
+                    echo "Hello Test"
+                    echo \$COURSE
+                    exit 1
+                """
+              }
+            }
+        }
     }
 
     post {
