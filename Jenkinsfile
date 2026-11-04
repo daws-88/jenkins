@@ -66,7 +66,6 @@ pipeline {
             script {
                 sh """
                     echo "Hello Test"
-                    exit 1
                     
                 """
               }
